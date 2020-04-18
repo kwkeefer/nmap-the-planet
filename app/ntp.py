@@ -7,32 +7,17 @@ nm = nmap.PortScanner()
 
 
 def run_scan(cidr, arguments):
+    """
+    :param cidr: CIDR to execute NMAP scan against.
+    :param arguments:  Arguments to pass to NMAP.  Same as command line arguments.  eg -sA
+    :return: list of json results from hosts or empty list if no hosts were found
+    """
     print(f"Running scan against {cidr} with args: {arguments}")
     nm.scan(hosts=cidr, arguments=arguments)
     results = []
     for host in nm.all_hosts():
         results.append(nm[host])
     return json.dumps(results)
-
-
-@app.errorhandler(500)
-def internal_error(error=None):
-    message = {
-        'status': 500,
-        'message': error
-    }
-    resp = jsonify(message)
-    resp.status_code = 500
-    return resp
-
-
-@app.route('/health')
-def healthcheck():
-    """ 
-    A simple application healthcheck
-    :return: "I'm alive!"
-    """
-    return "I'm alive!"
 
 
 @app.route('/scan', methods=['POST'])
@@ -53,5 +38,30 @@ def accept_scan():
     return results
 
 
+@app.errorhandler(500)
+def internal_error(error=None):
+    """
+    :param error: Error message
+    :return: json document of error
+    """
+    message = {
+        'status': 500,
+        'message': error
+    }
+    resp = jsonify(message)
+    resp.status_code = 500
+    return resp
+
+
+@app.route('/health')
+def healthcheck():
+    """
+    A simple application healthcheck
+    :return: "I'm alive!"
+    """
+    return "I'm alive!"
+
+
 if __name__ == "__main__":
+    """ For debugging locally with built in Flask server. """
     app.run(host='0.0.0.0')
