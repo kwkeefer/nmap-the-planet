@@ -1,7 +1,5 @@
 from flask import Flask, request, jsonify
 import nmap
-from pprint import pprint
-import sys
 import json
 
 app = Flask(__name__)
