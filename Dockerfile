@@ -5,7 +5,7 @@ RUN addgroup -g 1001 -S ntpgroup
 RUN adduser -S --ingroup ntpgroup --uid 1001 ntpuser
 
 RUN apk update
-RUN apk add nmap uwsgi-python3
+RUN apk add nmap
 RUN pip install flask python-nmap gunicorn
 
 EXPOSE 5000
