@@ -13,6 +13,6 @@ spec:
       containers:
         - name: postgres-api
           image: postgres-api
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: "Always"
           ports:
             - containerPort: 5000

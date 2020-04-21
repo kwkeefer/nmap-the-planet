@@ -13,7 +13,7 @@ spec:
       containers:
         - name: scanner
           image: ntp-scanner:latest
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: "Always"
           ports:
             - containerPort: 5000
 
