@@ -14,4 +14,4 @@ RUN apk del .build-deps
 EXPOSE 5000
 USER ntpuser
 ENTRYPOINT ["gunicorn"]
-CMD ["-w", "1", "-b", "0.0.0.0:5000" ,"ntp:app"]
+CMD ["-w", "1", "-b", "0.0.0.0:5000" ,"papi:app"]
