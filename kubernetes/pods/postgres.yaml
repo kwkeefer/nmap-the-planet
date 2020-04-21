@@ -1,22 +1,20 @@
 apiVersion: v1
-kind: Pod
+kind: Deployment
 metadata:
   name: postgres
-  namespace: ntp
 spec:
-  containers:
-  - name: postgres
-    image: postgres
-    resources:
-      limits:
-        memory: "800Mi"
-      requests:
-        memory: "400Mi"
-    env:
-      - name: POSTGRES_PASSWORD
-        value: mysecretpassword
-    ports:
-      - containerPort: 5432
-        name: postgres
-        protocol: TCP
-    command: ["postgres"]
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: mysecretpassword
