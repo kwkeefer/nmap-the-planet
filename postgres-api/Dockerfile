@@ -5,7 +5,7 @@ RUN addgroup -g 1001 -S ntpgroup
 RUN adduser -S --ingroup ntpgroup --uid 1001 ntpuser
 
 RUN apk update
-RUN apk add postgresql-devel
+RUN apk add python3-dev libpq
 RUN pip install flask gunicorn psycopg2
 
 EXPOSE 5000
