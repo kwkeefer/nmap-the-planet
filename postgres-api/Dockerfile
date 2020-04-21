@@ -4,9 +4,12 @@ COPY app .
 RUN addgroup -g 1001 -S ntpgroup
 RUN adduser -S --ingroup ntpgroup --uid 1001 ntpuser
 
-RUN apk update
-RUN apk add python3-dev libpq
+RUN apk update && apk add libpq
+RUN RUN apk add --virtual .build-deps gcc python3-dev musl-dev postgresql-dev
 RUN pip install flask gunicorn psycopg2
+
+# Delete build dependencies
+RUN apk del .build-deps
 
 EXPOSE 5000
 USER ntpuser
