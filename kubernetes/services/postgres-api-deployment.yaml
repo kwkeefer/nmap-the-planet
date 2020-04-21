@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postgres-api
+  namespace: ntp
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: postgres-api
+    spec:
+      containers:
+        - name: postgres-api
+          image: postgres-api
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5000
+
