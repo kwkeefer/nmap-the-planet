@@ -1,5 +1,6 @@
 import ipaddress
 from flask import Flask, request
+import concurrent.futures
 
 app = Flask(__name__)
 
@@ -34,6 +35,21 @@ def healthcheck():
     :return: "I'm alive!"
     """
     return "I'm alive!"
+
+
+def main():
+    pass
+
+
+@app.route('/submit_scan', methods=['POST'])
+def submit_scan():
+    r = request.get_json()
+    max_cidr_prefix = r['max_cidr_prefix']
+    cidr = r['cidr']
+    arguments = r['arguments']
+    workers = r.get('workers', 25)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        executor.map(main)
 
 
 if __name__ == "__main__":

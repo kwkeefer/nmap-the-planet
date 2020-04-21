@@ -2,11 +2,11 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: ntp-scanner
-  namespace: nmap-the-planet
+  namespace: ntp
 spec:
   containers:
-  - name: ntp-scanner
-    image: ntp-scan:latest
+  - name: scanner
+    image: ntp:latest
     resources:
       limits:
         memory: "400Mi"
