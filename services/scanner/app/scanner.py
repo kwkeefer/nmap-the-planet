@@ -1,6 +1,15 @@
 from flask import Flask, request, jsonify
 import nmap
+import logging
 import json
+
+logger = logging.getLogger(__name__)
+logger.propagate = 0
+logging.basicConfig(level=logging.INFO)
+console = logging.StreamHandler()
+logger.addHandler(console)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', '%m-%d-%Y %H:%M:%S')
+console.setFormatter(formatter)
 
 app = Flask(__name__)
 nm = nmap.PortScanner()
@@ -50,6 +59,8 @@ def internal_error(error=None):
     }
     resp = jsonify(message)
     resp.status_code = 500
+
+    logger.error(resp)
     return resp
 
 
@@ -64,4 +75,4 @@ def healthcheck():
 
 if __name__ == "__main__":
     """ For debugging locally with built in Flask server. """
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5555, debug=True)

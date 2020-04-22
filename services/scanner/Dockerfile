@@ -7,9 +7,9 @@ COPY app .
 
 RUN apk update
 RUN apk add nmap
-RUN pip install flask python-nmap gunicorn
+RUN pip install flask python-nmap gunicorn retrying
 
 EXPOSE 5000
 #USER ntpuser
 ENTRYPOINT ["gunicorn"]
-CMD ["-w", "1", "-b", "0.0.0.0:5000" ,"ntp:app"]
+CMD ["-w", "1", "-b", "0.0.0.0:5000" ,"scanner:app"]

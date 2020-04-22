@@ -1,9 +1,20 @@
-import psycopg2
-from configparser import ConfigParser
 import atexit
-from flask import Flask, request, jsonify
+from configparser import ConfigParser
 import json
+import logging
 import re
+import sys
+from flask import Flask, request, jsonify
+import psycopg2
+from retrying import retry
+
+logger = logging.getLogger(__name__)
+logger.propagate = 0
+logging.basicConfig(level=logging.INFO)
+console = logging.StreamHandler()
+logger.addHandler(console)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', '%m-%d-%Y %H:%M:%S')
+console.setFormatter(formatter)
 
 app = Flask(__name__)
 
@@ -32,7 +43,10 @@ def healthcheck():
     A simple application healthcheck
     :return: "I'm alive!"
     """
-    return "I'm alive!"
+    if conn.closed == 0:
+        return "I'm alive!"
+    else:
+        internal_error("Connection closed.")
 
 
 def create_tables():
@@ -92,9 +106,11 @@ def add_scan():
         cur.close()
     except KeyError as e:
         cur.close()
+        logger.error("KeyError: \n{e}")
         return internal_error(f"KeyError: {str(e)}")
     except Exception as e:
         cur.close()
+        logger.error(e)
         return internal_error(f"Unknown Exception: {str(e)}")
     return json.dumps({"scan_id": scan_id})
 
@@ -105,17 +121,17 @@ def create_result():
         cur = conn.cursor()
         r = request.get_json()
 
+        logger.info(f"Received add_result request:\n{r}")
+
         ip_address = r['ip_address']
         ip_address = re.sub("[^0-9\.\/]", "", ip_address)
 
-        scan_id = r['scan_id']
-        scan_id = re.sub("[^0-9]", "", scan_id)
+        scan_id = int(r['scan_id'])
 
         hostnames = r.get('hostnames', None)
-        if hostnames: hostnames = re.sub("[^0-9a-zA-Z\/\.]", "", hostnames)
+        if hostnames: hostnames = json.dumps(hostnames)
 
-        status = re.sub("[^a-zA-Z]", "", status)
-        status = r['status']
+        status = re.sub("[^a-zA-Z]", "", r['status'])
 
         status_reason = r.get('status_reason', None)
         if status_reason: status_reason = re.sub("[^a-zA-Z]", "", status_reason)
@@ -138,9 +154,9 @@ def create_result():
     except KeyError as e:
         cur.close()
         return internal_error(f"KeyError: {str(e)}")
-    except Exception as e:
-        cur.close()
-        return internal_error(f"Unknown Exception: {str(e)}")
+    # except Exception as e:
+    #     cur.close()
+    #     return internal_error(f"Unknown Exception: {str(e)}")
     return json.dumps({"status": 200})
 
 
@@ -189,6 +205,9 @@ def internal_error(error=None):
     :param error: Error message
     :return: json document of error
     """
+    if "current transaction is aborted, commands ignored until end of transaction block" in str(error):
+        sys.exit(e)
+
     message = {
         'status': 500,
         'message': error
@@ -198,15 +217,16 @@ def internal_error(error=None):
     return resp
 
 
-try:
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=20)
+def connect_to_database():
     params = config()
-    # connect to the PostgreSQL server
     conn = psycopg2.connect(**params)
     create_tables()
-except Exception as e:
-    print(str(e))
+    return conn
+
+
+conn = connect_to_database()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
-    atexit.register(cur.close)
+    app.run(host='0.0.0.0', port="5000")
     atexit.register(conn.close)
