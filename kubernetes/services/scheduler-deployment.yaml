@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: scanner
+  name: scheduler
   namespace: ntp
 spec:
-  replicas: 5
+  replicas: 1
   template:
     metadata:
       labels:
-        app: scanner
+        app: scheduler
     spec:
       containers:
-        - name: scanner
-          image: scanner:latest
+        - name: scheduler
+          image: scheduler:latest
           imagePullPolicy: "Always"
           ports:
             - containerPort: 5000
