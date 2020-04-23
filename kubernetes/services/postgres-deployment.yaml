@@ -19,3 +19,15 @@ spec:
           env:
             - name: POSTGRES_PASSWORD
               value: mysecretpassword
+            - name: PGPASSWORD
+              value: mysecretpassword
+          readinessProbe:
+            exec:
+              command: ["psql", "-U", "postgres", "-d", "postgres", "-c", "SELECT 1"]
+            initialDelaySeconds: 15
+            timeoutSeconds: 2
+          livenessProbe:
+            exec:
+              command: ["psql", "-U", "postgres", "-d", "postgres", "-c", "SELECT 1"]
+            initialDelaySeconds: 45
+            timeoutSeconds: 2
