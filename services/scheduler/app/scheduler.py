@@ -66,6 +66,7 @@ def add_scan_to_database(arguments, cidr):
         logger.error(response.text)
 
 
+# TODO use https://www.psycopg.org/docs/extras.html#psycopg2.extras.execute_values
 def add_scan_results_to_database(scan_results, scan_id):
     logger.info("HELP!")
     for entry in scan_results:
